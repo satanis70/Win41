@@ -46,4 +46,12 @@ class ActivityWeb : AppCompatActivity() {
         viewW?.saveState(outState)
         super.onSaveInstanceState(outState)
     }
+
+    override fun onBackPressed() {
+        if (viewW!!.canGoBack()) {
+            viewW?.goBack()
+        } else {
+            super.onBackPressed()
+        }
+    }
 }

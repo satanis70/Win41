@@ -17,7 +17,7 @@ class WebChromeCustomClient(private val activity: Activity, private val fullscre
             return
         }
         fullscreenContainer.removeView(customView)
-        fullscreenContainer.visibility = View.GONE
+        //fullscreenContainer.visibility = View.GONE
         customView = null
         customViewCallback!!.onCustomViewHidden()
         activity.requestedOrientation = originalOrientation
