@@ -1,12 +1,12 @@
 package com.example.win41
 
 import android.Manifest
-import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -14,13 +14,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.Button
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
@@ -75,16 +69,17 @@ class MainActivity : ComponentActivity() {
                     )
                 ).body()?.url.toString()
                 setContent {
-                    url = remember {
-                        mutableStateOf("")
-                    }
-                    url.value = currentUrl
                     Image(
                         painter = rememberAsyncImagePainter("http://49.12.202.175/win41/gradient.png"),
                         contentDescription = null,
                         modifier = Modifier.fillMaxSize(),
                         contentScale = ContentScale.FillBounds
                     )
+                    url = remember {
+                        mutableStateOf("")
+                    }
+                    val currentContext = LocalContext.current
+                    url.value = currentUrl
                     val context = LocalContext.current
                     var hasNotificationPermission by remember {
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -100,7 +95,15 @@ class MainActivity : ComponentActivity() {
                         contract = ActivityResultContracts.RequestPermission(),
                         onResult = { isGranted ->
                             hasNotificationPermission = isGranted
-                            checkUrl()
+                            Handler().postDelayed({
+                                currentContext.startActivity(
+                                    Intent(
+                                        this@MainActivity,
+                                        MainActivity::class.java
+                                    )
+                                )
+                                checkUrl()
+                            }, 3000)
                         }
                     )
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -111,46 +114,29 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
-
     }
 
-    private fun checkUrl(){
+    private fun checkUrl() {
         Log.i("URLL", url.value)
         when (url.value) {
             "no" -> {
                 val intent = Intent(this@MainActivity, QuizActivity::class.java)
                 intent.putExtra("url", url.value)
                 startActivity(intent)
+                finish()
             }
+
             "nopush" -> {
                 val intent = Intent(this@MainActivity, QuizActivity::class.java)
                 intent.putExtra("url", url.value)
                 startActivity(intent)
+                finish()
             }
-            ""->{}
             else -> {
                 val intent = Intent(this@MainActivity, ActivityWeb::class.java)
                 intent.putExtra("url", url.value)
                 startActivity(intent)
-            }
-        }
-    }
-    private fun loadUrl() {
-        CoroutineScope(Dispatchers.IO).launch {
-            val retrofit = Retrofit.Builder()
-                .baseUrl("http://49.12.202.175/")
-                .addConverterFactory(GsonConverterFactory.create())
-                .build()
-            val response = retrofit.create(RetrofitInterface::class.java)
-            launch(Dispatchers.Main) {
-                url.value = response.postQuery(
-                    PostModel(
-                        device,
-                        locale,
-                        id
-                    )
-                ).body()?.url.toString()
-                checkUrl()
+                finish()
             }
         }
     }
