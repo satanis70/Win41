@@ -1,8 +1,12 @@
 package com.example.win41
 
+import android.app.Activity
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.ComponentActivity
+import androidx.activity.OnBackPressedCallback
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -22,6 +26,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -29,6 +34,8 @@ import coil.compose.rememberAsyncImagePainter
 import com.example.win41.model.PlayersModel
 import com.example.win41.services.RetrofitInterface
 import com.example.win41.ui.theme.Win41Theme
+import com.onesignal.OneSignal
+import com.onesignal.debug.LogLevel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -38,14 +45,24 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 class QuizActivity : ComponentActivity() {
     val arrayListTopPlayers = ArrayList<PlayersModel>()
+    val ONESIGNAL_APP_ID = "714b9f14-381d-4fc4-a93c-28d480557381"
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val url = intent.getStringExtra("url")
         Log.i("QUIZURL", url.toString())
+        OneSignal.Debug.logLevel = LogLevel.VERBOSE
+        OneSignal.initWithContext(this, ONESIGNAL_APP_ID)
+        if (url=="nopush"){
+            OneSignal.User.pushSubscription.optOut()
+        }
         CoroutineScope(Dispatchers.IO).launch {
             getPlayers()
             launch(Dispatchers.Main) {
                 setContent {
+                    val activity = (LocalContext.current as? Activity)
+                    BackHandler(enabled = true, onBack = {
+                        activity?.finishAffinity()
+                    })
                     Image(
                         painter = rememberAsyncImagePainter("http://49.12.202.175/win41/gradient.png"),
                         contentDescription = null,

@@ -1,7 +1,7 @@
 package com.example.win41
 
 import android.Manifest
-import android.content.Context
+import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
@@ -15,24 +15,19 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import coil.compose.rememberAsyncImagePainter
 import com.example.win41.model.PostModel
 import com.example.win41.services.RetrofitInterface
-import com.example.win41.ui.theme.Win41Theme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -80,7 +75,7 @@ class MainActivity : ComponentActivity() {
                     }
                     val currentContext = LocalContext.current
                     url.value = currentUrl
-                    val context = LocalContext.current
+                    val context = LocalContext.current as Activity
                     var hasNotificationPermission by remember {
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                             mutableStateOf(
@@ -102,7 +97,7 @@ class MainActivity : ComponentActivity() {
                                         MainActivity::class.java
                                     )
                                 )
-                                checkUrl()
+                                checkUrl(context)
                             }, 3000)
                         }
                     )
@@ -116,27 +111,27 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    private fun checkUrl() {
+    private fun checkUrl(context: Activity) {
         Log.i("URLL", url.value)
         when (url.value) {
             "no" -> {
                 val intent = Intent(this@MainActivity, QuizActivity::class.java)
                 intent.putExtra("url", url.value)
-                startActivity(intent)
-                finish()
+                context.startActivity(intent)
+                context.finish()
             }
 
             "nopush" -> {
                 val intent = Intent(this@MainActivity, QuizActivity::class.java)
                 intent.putExtra("url", url.value)
-                startActivity(intent)
-                finish()
+                context.startActivity(intent)
+                context.finish()
             }
             else -> {
                 val intent = Intent(this@MainActivity, ActivityWeb::class.java)
                 intent.putExtra("url", url.value)
-                startActivity(intent)
-                finish()
+                context.startActivity(intent)
+                context.finish()
             }
         }
     }
