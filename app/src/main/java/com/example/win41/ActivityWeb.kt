@@ -1,11 +1,16 @@
 package com.example.win41
 
 import android.annotation.SuppressLint
+import android.app.Activity
+import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.webkit.URLUtil
+import android.util.Log
+import android.webkit.ValueCallback
+import android.webkit.WebChromeClient
 import android.webkit.WebSettings
 import android.webkit.WebView
+import androidx.activity.result.contract.ActivityResultContracts
 import com.onesignal.OneSignal
 import com.onesignal.debug.LogLevel
 
@@ -13,12 +18,32 @@ class ActivityWeb : AppCompatActivity() {
 
     var viewW: WebView? = null
     val ONESIGNAL_APP_ID = "714b9f14-381d-4fc4-a93c-28d480557381"
+
+    private var fileUploadCallback: ValueCallback<Array<Uri>>? = null
+
+    private val fileUploadActivityResultLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                val results = result.data?.let {
+                    WebChromeClient.FileChooserParams.parseResult(
+                        result.resultCode,
+                        it
+                    )
+                }
+                fileUploadCallback?.onReceiveValue(results)
+            } else {
+                fileUploadCallback?.onReceiveValue(null)
+            }
+            fileUploadCallback = null
+        }
+
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_web)
         viewW = this.findViewById(R.id.viewW)
         val url = intent.getStringExtra("url")
+        Log.i("URLOK", url.toString())
         viewW?.settings?.javaScriptEnabled = true
         viewW?.settings?.domStorageEnabled = true
         viewW?.settings?.useWideViewPort = true
@@ -27,22 +52,28 @@ class ActivityWeb : AppCompatActivity() {
         viewW?.settings?.cacheMode = WebSettings.LOAD_NO_CACHE
         viewW?.settings?.setSupportZoom(true)
         viewW?.settings?.allowFileAccess = true
+        viewW?.settings?.allowContentAccess = true
         viewW?.settings?.loadWithOverviewMode = true
         viewW?.isClickable = true
-        viewW?.webChromeClient = WebChromeCustomClient(this, findViewById(R.id.frame_layout))
+        viewW?.webChromeClient = WebChromeCustomClient(
+            this,
+            findViewById(R.id.frame_layout),
+            fileUploadActivityResultLauncher,
+            fileUploadCallback
+        )
         viewW?.webViewClient = MyWebViewClient(viewW!!)
         viewW?.settings?.supportMultipleWindows()
         viewW?.settings?.allowContentAccess = true
         viewW?.settings?.setNeedInitialFocus(true)
         if (url != null) {
-            checkInstance(viewW!!, savedInstanceState, url)
+            checkInstance(viewW!!, savedInstanceState, url.toString())
         }
         OneSignal.Debug.logLevel = LogLevel.VERBOSE
         OneSignal.initWithContext(this, ONESIGNAL_APP_ID)
     }
 
-    private fun checkInstance(viewW: WebView, savedInstanceState: Bundle?, url: String){
-        if (savedInstanceState != null){
+    private fun checkInstance(viewW: WebView, savedInstanceState: Bundle?, url: String) {
+        if (savedInstanceState != null) {
             viewW.restoreState(savedInstanceState)
         } else {
             viewW.loadUrl(url)

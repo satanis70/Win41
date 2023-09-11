@@ -1,8 +1,12 @@
 package com.example.win41
 
 import android.util.Log
+import android.webkit.WebResourceRequest
+import android.webkit.WebResourceResponse
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import java.net.HttpURLConnection
+import java.net.URL
 import kotlin.math.roundToInt
 
 class MyWebViewClient(val mWebView: WebView): WebViewClient() {
@@ -30,5 +34,4 @@ class MyWebViewClient(val mWebView: WebView): WebViewClient() {
         Log.i("ERRORWEBVIEW", url.toString())
         return true
     }
-
 }
