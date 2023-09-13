@@ -27,11 +27,4 @@ class MyWebViewClient(val mWebView: WebView): WebViewClient() {
         }
         super.onPageFinished(view, url)
     }
-
-    @Deprecated("Deprecated in Java")
-    override fun shouldOverrideUrlLoading(view: WebView?, url: String?): Boolean {
-        view?.loadUrl(url!!)
-        Log.i("ERRORWEBVIEW", url.toString())
-        return true
-    }
 }
