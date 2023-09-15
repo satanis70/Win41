@@ -4,19 +4,23 @@ import android.annotation.SuppressLint
 import android.content.SharedPreferences
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.webkit.ValueCallback
 import android.webkit.WebSettings
 import android.webkit.WebView
+import android.webkit.WebViewClient
 import androidx.appcompat.app.AppCompatActivity
 import com.onesignal.OneSignal
 import com.onesignal.debug.LogLevel
 
 
 class ActivityWeb : AppCompatActivity() {
+
     var viewW: WebView? = null
     val ONESIGNAL_APP_ID = "714b9f14-381d-4fc4-a93c-28d480557381"
     private var fileUploadCallback: ValueCallback<Array<Uri>>? = null
     var url: String? = null
+
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,7 +38,7 @@ class ActivityWeb : AppCompatActivity() {
         viewW?.settings?.allowContentAccess = true
         viewW?.settings?.loadWithOverviewMode = true
         viewW?.isClickable = true
-        viewW?.webViewClient = MyWebViewClient(viewW!!)
+        viewW?.webViewClient = WebViewClient()
         viewW?.webChromeClient = WebChromeCustomClient(
             this,
             findViewById(R.id.frame_layout),
@@ -63,6 +67,7 @@ class ActivityWeb : AppCompatActivity() {
         val edit = prefs.edit()
         edit.apply {
             putString("lastUrl", viewW?.url)
+            viewW?.scrollY?.let { putInt("position", it) }
             apply()
         }
     }
@@ -76,6 +81,7 @@ class ActivityWeb : AppCompatActivity() {
             if (s != "") {
                 if (s != null) {
                     viewW?.loadUrl(s)
+                    viewW?.scrollY = prefs.getInt("position", 0)
                 }
             } else {
                 url?.let { viewW?.loadUrl(it) }

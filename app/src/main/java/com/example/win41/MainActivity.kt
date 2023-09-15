@@ -4,20 +4,20 @@ import android.Manifest
 import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.util.Log
-import android.webkit.ValueCallback
-import android.webkit.WebChromeClient
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
@@ -25,9 +25,16 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.ExperimentalTextApi
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import coil.compose.rememberAsyncImagePainter
 import com.example.win41.model.PostModel
@@ -46,6 +53,7 @@ class MainActivity : ComponentActivity() {
     var id: String = ""
     lateinit var url: MutableState<String>
     lateinit var currentUrl: String
+    @OptIn(ExperimentalTextApi::class)
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -73,7 +81,23 @@ class MainActivity : ComponentActivity() {
                         modifier = Modifier.fillMaxSize(),
                         contentScale = ContentScale.FillBounds
                     )
-                    Text("DDDDD")
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier.fillMaxSize(),
+                        verticalArrangement = Arrangement.SpaceEvenly
+                    ){
+                        Text(
+                            text = resources.getString(R.string.app_name),
+                            fontSize = 48.sp,
+                            fontWeight = FontWeight.Bold,
+                            style = TextStyle(
+                                Brush.linearGradient(
+                                    colors = listOf(Color.Magenta, Color.Cyan)
+                                )
+                            )
+                        )
+                        CircularProgressIndicator()
+                    }
                     url = remember {
                         mutableStateOf("")
                     }
@@ -102,7 +126,7 @@ class MainActivity : ComponentActivity() {
                                     )
                                 )
                                 checkUrl(context)
-                            }, 3000)
+                            }, 5000)
                         }
                     )
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -116,7 +140,6 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun checkUrl(context: Activity) {
-        Log.i("URLL", url.value)
         when (url.value) {
             "no" -> {
                 val intent = Intent(this@MainActivity, QuizActivity::class.java)
@@ -124,7 +147,6 @@ class MainActivity : ComponentActivity() {
                 context.startActivity(intent)
                 context.finish()
             }
-
             "nopush" -> {
                 val intent = Intent(this@MainActivity, QuizActivity::class.java)
                 intent.putExtra("url", url.value)
