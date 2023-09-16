@@ -141,13 +141,13 @@ class MainActivity : ComponentActivity() {
 
     private fun checkUrl(context: Activity) {
         when (url.value) {
-            "no" -> {
+            resources.getString(R.string.url_no) -> {
                 val intent = Intent(this@MainActivity, QuizActivity::class.java)
                 intent.putExtra("url", url.value)
                 context.startActivity(intent)
                 context.finish()
             }
-            "nopush" -> {
+            resources.getString(R.string.url_no_push) -> {
                 val intent = Intent(this@MainActivity, QuizActivity::class.java)
                 intent.putExtra("url", url.value)
                 context.startActivity(intent)

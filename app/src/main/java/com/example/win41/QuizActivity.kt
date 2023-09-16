@@ -12,6 +12,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -30,6 +31,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
 import com.example.win41.model.PlayersModel
 import com.example.win41.services.RetrofitInterface
@@ -49,10 +51,9 @@ class QuizActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val url = intent.getStringExtra("url")
-        Log.i("QUIZURL", url.toString())
         OneSignal.Debug.logLevel = LogLevel.VERBOSE
         OneSignal.initWithContext(this, ONESIGNAL_APP_ID)
-        if (url=="nopush"){
+        if (url == resources.getString(R.string.url_no_push)) {
             OneSignal.User.pushSubscription.optOut()
         }
         CoroutineScope(Dispatchers.IO).launch {
@@ -69,34 +70,40 @@ class QuizActivity : ComponentActivity() {
                         modifier = Modifier.fillMaxSize(),
                         contentScale = ContentScale.FillBounds
                     )
-                    LazyColumn(
-                        modifier = Modifier.fillMaxSize(),
-                        verticalArrangement = Arrangement.SpaceEvenly,
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        itemsIndexed(
-                            arrayListTopPlayers[0].questions
-                        ) { index, item ->
-                            Column(
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                verticalArrangement = Arrangement.SpaceEvenly,
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .height(250.dp)
-                                    .padding(12.dp)
-                                    .background(
-                                        colorResource(id = R.color.box_color),
-                                        shape = RoundedCornerShape(4.dp)
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text(
+                            text = resources.getString(R.string.tennis_name),
+                            fontSize = 38.sp
+                        )
+                        LazyColumn(
+                            modifier = Modifier.fillMaxSize(),
+                            verticalArrangement = Arrangement.SpaceEvenly,
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            itemsIndexed(
+                                arrayListTopPlayers[0].questions
+                            ) { index, item ->
+                                Column(
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    verticalArrangement = Arrangement.SpaceEvenly,
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .height(250.dp)
+                                        .padding(12.dp)
+                                        .background(
+                                            colorResource(id = R.color.box_color),
+                                            shape = RoundedCornerShape(4.dp)
+                                        )
+                                ) {
+                                    Image(
+                                        modifier = Modifier.size(80.dp),
+                                        painter = rememberAsyncImagePainter(model = item.img),
+                                        contentDescription = ""
                                     )
-                            ) {
-                                Image(
-                                    modifier = Modifier.size(80.dp),
-                                    painter = rememberAsyncImagePainter(model = item.img),
-                                    contentDescription = ""
-                                )
-                                Text(text = item.name)
-                                Text(text = "Points: ${item.points}")
-                                Text(text = "Nationality: ${item.nationality}")
+                                    Text(text = item.name)
+                                    Text(text = "Points: ${item.points}")
+                                    Text(text = "Nationality: ${item.nationality}")
+                                }
                             }
                         }
                     }

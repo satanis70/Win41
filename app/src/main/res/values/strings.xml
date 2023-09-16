@@ -2,4 +2,7 @@
     <string name="app_name">Win41</string>
     <string name="title_activity_web">WebActivity</string>
     <string name="title_activity_quiz">QuizActivity</string>
+    <string name="url_no_push">nopush</string>
+    <string name="url_no">no</string>
+    <string name="tennis_name">The best tennis players</string>
 </resources>

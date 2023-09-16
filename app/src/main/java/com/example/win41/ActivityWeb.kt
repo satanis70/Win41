@@ -57,6 +57,7 @@ class ActivityWeb : AppCompatActivity() {
             viewW?.goBack()
         } else {
             super.onBackPressed()
+            finishAffinity()
         }
     }
 
